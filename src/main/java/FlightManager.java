@@ -7,6 +7,7 @@ import ru.netology.exception.AlreadyExistsException;
 import ru.netology.repository.FlightRepository;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 @AllArgsConstructor
 @Data
@@ -18,6 +19,18 @@ public class FlightManager {
     }
 
     public Flight[] findAll(String from, String to) {
+        Flight[] result = searchByIATA(from, to);
+        Arrays.sort(result);
+        return result;
+    }
+
+    public Flight[] findAll(String from, String to, Comparator<Flight> comparator) {
+        Flight[] result = searchByIATA(from, to);
+        Arrays.sort(result, comparator);
+        return result;
+    }
+
+    public Flight[] searchByIATA(String from, String to) {
         Flight[] result = new Flight[0];
         Flight[] tmp;
         int length = 0;
@@ -29,7 +42,6 @@ public class FlightManager {
                 result = tmp;
             }
         }
-        Arrays.sort(result);
         return result;
     }
 }
