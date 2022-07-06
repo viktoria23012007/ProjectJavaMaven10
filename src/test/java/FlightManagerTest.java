@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.netology.domain.Flight;
+import ru.netology.domain.FlightByDurationAsComparator;
 import ru.netology.exception.AlreadyExistsException;
 import ru.netology.repository.FlightRepository;
 
@@ -26,6 +27,8 @@ public class FlightManagerTest {
     private Flight flight5 = new Flight(5, 1_000, "VKO", "LAX", 100);
     private Flight flight6 = new Flight(6, 1_000, "VKO", "LAX", 150);
     private Flight[] returned = new Flight[]{flight1, flight2, flight3, flight4, flight5, flight6};
+
+    private FlightByDurationAsComparator comparator = new FlightByDurationAsComparator();
 
     @Test
     public void shouldAdd() throws AlreadyExistsException {
@@ -48,7 +51,7 @@ public class FlightManagerTest {
     }
 
     @Test
-    public void shouldFindAllAndSortByPriceWithEqualPrices() {
+    public void shouldFindAllAndSortByPriceWithEqualValues() {
         doReturn(returned).when(repository).findAll();
 
         Flight[] actual = manager.findAll("VKO", "LAX");
@@ -64,6 +67,27 @@ public class FlightManagerTest {
 
         Flight[] actual = manager.findAll("HND", "LAX");
         Flight[] expected = new Flight[0];
+        assertArrayEquals(expected, actual);
+        verify(repository).findAll();
+    }
+
+    @Test
+    public void shouldFindAllAndSortByDuration() {
+        doReturn(returned).when(repository).findAll();
+
+        Flight[] actual = manager.findAll("VKO", "HND", comparator);
+        Flight[] expected = new Flight[]{flight2, flight1, flight3};
+        assertArrayEquals(expected, actual);
+        verify(repository).findAll();
+    }
+
+    @Test
+    public void shouldFindAllAndSortByDurationWithEqualValues() {
+        doReturn(returned).when(repository).findAll();
+
+        Flight[] actual = manager.findAll("VKO", "LAX", comparator);
+        Flight[] expected = new Flight[]{flight5, flight4, flight6};
+        // Ожидаем увидеть равные по длительности перелета билеты в том же порядке
         assertArrayEquals(expected, actual);
         verify(repository).findAll();
     }
